@@ -1,4 +1,4 @@
-import { Events } from "discord.js";
+import { Events, GatewayIntentBits } from "discord.js";
 
 export default {
   name: Events.InteractionCreate,
@@ -17,7 +17,11 @@ export default {
     try {
       await command.execute(interaction);
     } catch (error) {
-      console.error(error);
+      console.error(
+        `Error executing the ${interaction.commandName} command:`,
+        error
+      );
+
       if (interaction.replied || interaction.deferred) {
         await interaction.followUp({
           content: "There was an error while executing this command!",

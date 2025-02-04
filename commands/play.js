@@ -21,6 +21,16 @@ export default {
       );
     }
 
+    if (
+      !channel
+        .permissionsFor(interaction.guild.members.me)
+        .has("Connect", false)
+    ) {
+      return interaction.reply(
+        "I don't have permission to join your voice channel!"
+      );
+    }
+
     let player = await interaction.client.kazagumo.createPlayer({
       guildId: interaction.guild.id,
       textId: interaction.channel.id,
