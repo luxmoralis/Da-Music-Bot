@@ -3,6 +3,7 @@ import { EmbedBuilder } from "discord.js";
 export default {
   name: "playerEnd",
   execute(client, player, track) {
+    player.data.get("message")?.edit({ content: `Finished playing` });
     const embed = new EmbedBuilder()
       .setTitle(`Finished playing`)
       .setDescription(

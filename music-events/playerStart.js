@@ -1,8 +1,12 @@
 import { EmbedBuilder } from "discord.js";
+import { logger } from "../logger.js";
 
 export default {
   name: "playerStart",
   execute(client, player, track) {
+    logger.info(
+      `Lavalink ${player.guildId}: Now playing ${track.title} by ${track.author}`
+    );
     const embed = new EmbedBuilder()
       .setTitle(`Now playing`)
       .setThumbnail(track.thumbnail)

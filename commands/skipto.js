@@ -1,43 +1,41 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
     .setName("skipto")
-    .setDescription("Skip a number of tracks in the queue")
+    .setDescription("Skips to a specific track in the queue")
     .addIntegerOption((option) =>
       option
-        .setName("number")
-        .setDescription("Number of tracks to skip")
+        .setName("index")
+        .setDescription("The position of the track in the queue")
         .setRequired(true)
     ),
   async execute(interaction) {
-    const number = interaction.options.getInteger("number");
+    const number = interaction.options.getInteger("index");
     const { channel } = interaction.member.voice;
 
     if (!channel) {
-      return interaction.reply(
+      return interaction.editReply(
         "You need to be in a voice channel to use this command!"
       );
     }
 
-    const player = interaction.client.kazagumo.players.get(
+    const player = await interaction.client.kazagumoClient.players.get(
       interaction.guild.id
     );
-
     if (!player) {
-      return interaction.reply("No player found!");
+      return interaction.editReply("No player found!");
     }
 
     if (number < 1 || number > player.queue.length) {
-      return interaction.reply("Invalid number of tracks to skip!");
+      return interaction.editReply("Invalid number of tracks to skip!");
     }
 
     player.queue.splice(0, number - 1);
     player.skip();
 
     const embed = new EmbedBuilder()
-      .setTitle(`Skipped ${number} tracks`)
+      .setTitle(`Skipped to track ${number}`)
       .setDescription(`Now playing: ${player.queue[0]?.title}`)
       .setColor(0x019bd9)
       .setFooter({
@@ -45,6 +43,6 @@ export default {
         iconURL: interaction.user.displayAvatarURL(),
       });
 
-    return interaction.reply({ embeds: [embed] });
+    return interaction.editReply({ embeds: [embed] });
   },
 };

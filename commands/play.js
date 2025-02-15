@@ -1,26 +1,23 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
     .setName("play")
-    .setDescription("Play a song from YouTube")
+    .setDescription("Plays a track from a given URL or search query")
     .addStringOption((option) =>
       option
         .setName("query")
-        .setDescription("The song name or URL")
+        .setDescription("The URL or search query of the track")
         .setRequired(true)
     ),
   async execute(interaction) {
     const query = interaction.options.getString("query");
     const { channel } = interaction.member.voice;
-
     if (!channel) {
-      return interaction.reply(
+      return interaction.editReply(
         "You need to be in a voice channel to use this command!"
       );
     }
-
     if (
       !channel
         .permissionsFor(interaction.guild.members.me)
@@ -30,21 +27,18 @@ export default {
         "I don't have permission to join your voice channel!"
       );
     }
-
-    let player = await interaction.client.kazagumo.createPlayer({
+    const player = await interaction.client.kazagumoClient.createPlayer({
       guildId: interaction.guild.id,
+      voiceId: interaction.member.voice.channel.id,
       textId: interaction.channel.id,
-      voiceId: channel.id,
-      volume: 100,
+      volume: 75,
       deaf: true,
     });
-
-    let result = await interaction.client.kazagumo.search(query, {
+    const result = await interaction.client.kazagumoClient.search(query, {
       requester: interaction.user,
     });
-
     if (!result.tracks.length) {
-      return interaction.reply("No results found!");
+      return interaction.editReply("No tracks found.");
     }
 
     if (result.type === "PLAYLIST") {
@@ -74,7 +68,6 @@ export default {
         text: `Requested by ${interaction.user.tag}`,
         iconURL: interaction.user.displayAvatarURL(),
       });
-
-    return interaction.reply({ embeds: [embed] });
+    return interaction.editReply({ embeds: [embed] });
   },
 };

@@ -1,43 +1,27 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
     .setName("volume")
-    .setDescription("Set the volume of the player")
+    .setDescription("Sets the volume of the player")
     .addIntegerOption((option) =>
       option
         .setName("level")
-        .setDescription("Volume level (0-100)")
+        .setDescription("The volume level (0-100)")
         .setRequired(true)
     ),
   async execute(interaction) {
-    const volume = interaction.options.getInteger("level");
-    const { channel } = interaction.member.voice;
-
-    if (!channel) {
-      return interaction.reply(
-        "You need to be in a voice channel to use this command!"
-      );
-    }
-
-    if (volume < 0 || volume > 100) {
-      return interaction.reply("Volume level must be between 0 and 100!");
-    }
-
-    const player = interaction.client.kazagumo.players.get(
+    const level = interaction.options.getInteger("level");
+    if (level < 0 || level > 100)
+      return interaction.editReply("Volume level must be between 0 and 100.");
+    const player = await interaction.client.kazagumoClient.players.get(
       interaction.guild.id
     );
-
-    if (!player) {
-      return interaction.reply("No player found!");
-    }
-
-    player.setVolume(volume);
-
+    if (!player) return interaction.editReply("No music is being played!");
+    player.setVolume(level);
     const embed = new EmbedBuilder()
       .setTitle("Volume Control")
-      .setDescription(`Volume set to ${volume}%`)
+      .setDescription(`Volume set to ${level}%`)
       .setColor("#019bd9")
       .setFooter({
         text: `Requested by ${interaction.user.tag}`,

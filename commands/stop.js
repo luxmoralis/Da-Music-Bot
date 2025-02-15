@@ -1,29 +1,16 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
     .setName("stop")
-    .setDescription("Stop the currently playing song and clear the queue"),
+    .setDescription("Stops the currently playing track and clears the queue"),
   async execute(interaction) {
-    const { channel } = interaction.member.voice;
-
-    if (!channel) {
-      return interaction.reply(
-        "You need to be in a voice channel to use this command!"
-      );
-    }
-
-    const player = interaction.client.kazagumo.players.get(
+    const player = await interaction.client.kazagumoClient.players.get(
       interaction.guild.id
     );
-
-    if (!player) {
-      return interaction.reply("No player found!");
-    }
-
+    if (!player) return interaction.editReply("No music is being played!");
+    player.queue.clear();
     player.destroy();
-
     const embed = new EmbedBuilder()
       .setTitle("Stopped")
       .setDescription(`Stopped the current track and cleared the queue`)
@@ -32,7 +19,6 @@ export default {
         text: `Requested by ${interaction.user.tag}`,
         iconURL: interaction.user.displayAvatarURL(),
       });
-
-    return interaction.reply({ embeds: [embed] });
+    return interaction.editReply({ embeds: [embed] });
   },
 };

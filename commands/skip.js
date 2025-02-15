@@ -1,29 +1,21 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
     .setName("skip")
-    .setDescription("Skip the currently playing song"),
+    .setDescription("Skips the currently playing track"),
   async execute(interaction) {
     const { channel } = interaction.member.voice;
-
     if (!channel) {
-      return interaction.reply(
+      return interaction.editReply(
         "You need to be in a voice channel to use this command!"
       );
     }
-
-    const player = interaction.client.kazagumo.players.get(
+    const player = await interaction.client.kazagumoClient.players.get(
       interaction.guild.id
     );
-
-    if (!player) {
-      return interaction.reply("No player found!");
-    }
-
+    if (!player) return interaction.editReply("No music is being played!");
     player.skip();
-
     const embed = new EmbedBuilder()
       .setTitle(`Skipped to ${player.queue[0]?.title}`)
       .setThumbnail(player.queue[0]?.thumbnail)
@@ -34,6 +26,6 @@ export default {
         iconURL: interaction.user.displayAvatarURL(),
       });
 
-    return interaction.reply({ embeds: [embed] });
+    return interaction.editReply({ embeds: [embed] });
   },
 };

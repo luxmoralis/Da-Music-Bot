@@ -1,6 +1,8 @@
+import { logger } from "../logger.js";
+
 export default {
   name: "disconnect",
-  execute(client, name, count) {
+  execute(client, name, count, kazagumo) {
     const players = [...kazagumo.shoukaku.players.values()].filter(
       (p) => p.node.name === name
     );
@@ -8,6 +10,6 @@ export default {
       kazagumo.destroyPlayer(player.guildId);
       player.destroy();
     });
-    console.warn(`Lavalink ${name}: Disconnected`);
+    logger.warn(`Lavalink ${name}: Disconnected`);
   },
 };

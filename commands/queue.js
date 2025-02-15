@@ -1,34 +1,27 @@
-import { SlashCommandBuilder } from "@discordjs/builders";
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 export default {
   data: new SlashCommandBuilder()
     .setName("queue")
-    .setDescription("View the current song queue"),
+    .setDescription("Displays the current queue"),
   async execute(interaction) {
     const { channel } = interaction.member.voice;
-
     if (!channel) {
-      return interaction.reply(
+      return interaction.editReply(
         "You need to be in a voice channel to use this command!"
       );
     }
-
-    const player = interaction.client.kazagumo.players.get(
+    const player = await interaction.client.kazagumoClient.players.get(
       interaction.guild.id
     );
-
-    if (!player || !player.queue.length) {
-      return interaction.reply("The queue is currently empty!");
-    }
-
+    if (!player || !player.queue.size)
+      return interaction.editReply("The queue is empty.");
     const queue = player.queue
       .map(
         (track, index) =>
           `${index + 1}. **${track.title}** by **${track.author}**`
       )
       .join("\n");
-
     const embed = new EmbedBuilder()
       .setTitle("Current Queue")
       .setDescription(queue)
@@ -39,6 +32,6 @@ export default {
         iconURL: interaction.user.displayAvatarURL(),
       });
 
-    return interaction.reply({ embeds: [embed] });
+    return interaction.editReply({ embeds: [embed] });
   },
 };

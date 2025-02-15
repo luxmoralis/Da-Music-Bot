@@ -5,9 +5,10 @@ export default {
     .setName("help")
     .setDescription("Provides information about available commands"),
   async execute(interaction) {
-    const commands = interaction.client.commands.map((cmd) => cmd.data);
-    const commandList = commands
-      .map((cmd) => `**/${cmd.name}** - ${cmd.description}\n`)
+    const commandList = interaction.client.commands
+      .map(
+        ({ data: { name, description } }) => `**/${name}** - ${description}\n`
+      )
       .join("\n");
 
     const embed = new EmbedBuilder()
